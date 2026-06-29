@@ -1,0 +1,63 @@
+# ── Secrets & environment ─────────────────────────────────────────────────────
+.env
+*.env
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Django ────────────────────────────────────────────────────────────────────
+*.log
+db.sqlite3
+media/
+static/collected/
+staticfiles/
+
+# ── Distribution / packaging ──────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.tox/
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+nosetests.xml
+
+# ── Node (package.json / node_modules present in project) ─────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── IDEs & editors ────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Compiled assets ───────────────────────────────────────────────────────────
+*.min.js
+*.min.css
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+desktop.ini
