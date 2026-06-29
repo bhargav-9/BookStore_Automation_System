@@ -1,22 +1,167 @@
 {% extends "admin/change_list.html" %}
 
 {% block result_list %}
-    {{block.super}}
-    <tfoot>
-        <tr class="text-right" >
-            <td colspan="{{ cl.result_headers|length }}">
-                <h1 style="font-size:30px; text-align:center;">
-                    Total Revenue: ₹{{total_revenue}}
-                </h1>
-            </td>
-        </tr>
-    </tfoot>
-    <div>
-        <h1 style="font-size:40px; text-align:center; font-family:arial;text-decoration:underline;">Statistics</h1>
-    </div>
-    {% if graph_data %}
-        <div>
-            <img src="data:image/png;base64,{{ graph_data }}" alt="Revenue Graph" style="display: block; margin-left:auto; margin-right:auto; width: 80%;">
+    {{ block.super }}
+
+    <style>
+        /* ── Dashboard wrapper ───────────────────────────────── */
+        .bas-dashboard {
+            margin: 28px 0 16px;
+            font-family: "Roboto", "Lucida Grande", Verdana, sans-serif;
+        }
+
+        .bas-dashboard-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #264B5D;
+            border-left: 4px solid #417690;
+            padding-left: 10px;
+            margin-bottom: 18px;
+            letter-spacing: .3px;
+        }
+
+        /* ── KPI row ─────────────────────────────────────────── */
+        .bas-kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .bas-kpi-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-top: 3px solid #417690;
+            border-radius: 4px;
+            padding: 14px 16px 12px;
+            text-align: center;
+        }
+
+        .bas-kpi-card.green  { border-top-color: #16A34A; }
+        .bas-kpi-card.orange { border-top-color: #D97706; }
+        .bas-kpi-card.red    { border-top-color: #DC2626; }
+
+        .bas-kpi-icon  { font-size: 22px; margin-bottom: 4px; }
+        .bas-kpi-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #264B5D;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+        .bas-kpi-label {
+            font-size: 10px;
+            color: #888;
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        /* ── Chart grid ──────────────────────────────────────── */
+        .bas-chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .bas-chart-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .bas-chart-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .bas-chart-full { grid-column: span 2; }
+
+        .bas-no-data {
+            color: #aaa;
+            text-align: center;
+            padding: 28px;
+            font-style: italic;
+            font-size: 13px;
+        }
+
+        @media (max-width: 900px) {
+            .bas-kpi-row   { grid-template-columns: 1fr 1fr; }
+            .bas-chart-grid { grid-template-columns: 1fr; }
+            .bas-chart-full { grid-column: span 1; }
+        }
+    </style>
+
+    <div class="bas-dashboard">
+        <div class="bas-dashboard-title">📊 Sales Analytics</div>
+
+        {# ── KPI Cards ── #}
+        <div class="bas-kpi-row">
+            <div class="bas-kpi-card">
+                <div class="bas-kpi-icon">💰</div>
+                <div class="bas-kpi-value">₹{{ total_revenue }}</div>
+                <div class="bas-kpi-label">Total Revenue</div>
+            </div>
+            <div class="bas-kpi-card green">
+                <div class="bas-kpi-icon">📦</div>
+                <div class="bas-kpi-value">{{ total_qty }}</div>
+                <div class="bas-kpi-label">Units Sold</div>
+            </div>
+            <div class="bas-kpi-card orange">
+                <div class="bas-kpi-icon">📚</div>
+                <div class="bas-kpi-value">{{ unique_books }}</div>
+                <div class="bas-kpi-label">Unique Titles</div>
+            </div>
+            <div class="bas-kpi-card red">
+                <div class="bas-kpi-icon">🏆</div>
+                <div class="bas-kpi-value" style="font-size:13px; line-height:1.4;">{{ top_book }}</div>
+                <div class="bas-kpi-label">Top Selling Book</div>
+            </div>
         </div>
-    {% endif %}
+
+        {# ── Chart Grid ── #}
+        <div class="bas-chart-grid">
+
+            {# Daily Revenue — full width #}
+            <div class="bas-chart-card bas-chart-full">
+                {% if chart_daily_revenue %}
+                    <img src="data:image/png;base64,{{ chart_daily_revenue }}" alt="Daily Revenue Chart">
+                {% else %}
+                    <p class="bas-no-data">No sales data available for the selected period.</p>
+                {% endif %}
+            </div>
+
+            {# Top 10 Books #}
+            <div class="bas-chart-card">
+                {% if chart_top_books %}
+                    <img src="data:image/png;base64,{{ chart_top_books }}" alt="Top Books Chart">
+                {% else %}
+                    <p class="bas-no-data">No book sales data available.</p>
+                {% endif %}
+            </div>
+
+            {# Genre Pie #}
+            <div class="bas-chart-card">
+                {% if chart_genre_pie %}
+                    <img src="data:image/png;base64,{{ chart_genre_pie }}" alt="Revenue by Genre">
+                {% else %}
+                    <p class="bas-no-data">No genre data available.</p>
+                {% endif %}
+            </div>
+
+            {# Monthly Trend — full width #}
+            <div class="bas-chart-card bas-chart-full">
+                {% if chart_monthly %}
+                    <img src="data:image/png;base64,{{ chart_monthly }}" alt="Monthly Trend Chart">
+                {% else %}
+                    <p class="bas-no-data">Not enough data to show monthly trend.</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
 {% endblock %}
